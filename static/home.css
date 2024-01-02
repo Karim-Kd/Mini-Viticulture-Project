@@ -1,0 +1,21 @@
+  body {
+    margin: 0; /* Remove default margin */
+    background: url('grapes.jpg') center center/cover no-repeat; /* Use background image */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .overlay {
+    background: rgba(40, 167, 69, 0.5); /* Faded green overlay color */
+    flex: 1;
+  }
+
+  .container {
+    z-index: 1; /* Ensure content appears above the background */
+  }
+
+  .full-width-image {
+    width: 100%;
+    height: auto;
+  }

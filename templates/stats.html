@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Viticulture-App</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+      crossorigin="anonymous">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css')}}" type="text/css" />  
+  </head>
+  
+  <body class="d-flex flex-column min-vh-100">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">VitiCulture-App</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" style="color: black" href="{{url_for('index')}}">Home</a>
+            </li>
+            {% if not user %}
+            <li class="nav-item">
+              <a class="nav-link" style="color: black" href="{{url_for('register')}}">Register</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color: black" href="{{url_for('login')}}">Login</a>
+            </li>
+            {% endif %}
+            {% if user %}
+            <li class="nav-item">
+              <a class="nav-link" style="color: black" href="{{url_for('stats')}}">Stats</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color: black" href="{{url_for('employees')}}">Employees</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color: black" href="{{url_for('operations')}}">Operations</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color: black"href="#">{{user['name']}}</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" style="color: black" href="{{url_for('index')}}">Logout</a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Body Content with Background Color and Full-width Image -->
+    <div class="container mt-3 flex-grow-1 d-flex flex-column align-items-center justify-content-center text-white">
+      <h1 style="font-size: 2.5em; color: rgb(6, 102, 19);">Stats</h1>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+            <div id="classification-graph">
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div id="regression-example-graph">
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body Content with Background Color and Full-width Image -->
+    <div class="container mt-3 flex-grow-1 d-flex flex-column align-items-center justify-content-center text-white">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+            <div id="time-series-graph">
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div id="classification-example-graph">
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container mt-3 flex-grow-1 d-flex flex-column align-items-center justify-content-center text-white">
+      <img src="{{ url_for('static', filename='decision_tree_regression.png') }}" alt="Decision Tree Regression" class="img-fluid">
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center p-3">
+      <p>&copy; 2024 Viticulture-App by karim. All rights reserved.</p>
+    </footer>
+
+    <!-- Bootstrap JS, Popper.js, and Bootstrap Icons (Optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"
+      integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB"
+      crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"
+      integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13"
+      crossorigin="anonymous"></script>
+
+    <script src="https://cdn.plot.ly/plotly-2.10.0.min.js"></script>
+    <script>
+        var labels = {{ labels | safe }};
+        var counts = {{ counts | safe }};
+
+        var data = [{
+            values: counts,
+            labels: labels,
+            type: 'pie'
+        }];
+
+        var layout = {
+            height: 400,
+            width: 500
+        };
+
+        Plotly.newPlot('classification-graph', data, layout);
+    </script>
+    <script>
+        var start_dates = {{ start_dates | safe }};
+        var durations = {{ durations | safe }};
+
+        var trace = {
+            x: start_dates,
+            y: durations,
+            mode: 'markers',
+            type: 'scatter'
+        };
+
+        var line = {
+            type: 'line',
+            x: [start_dates[0], start_dates[start_dates.length - 1]],
+            y: [durations[0], durations[start_dates.length - 1]],
+            mode: 'lines',
+            line: {
+                color: 'red',
+                width: 2
+            }
+        };
+
+        var data = [trace, line];
+
+        var layout = {
+            xaxis: {
+                title: 'Start Date'
+            },
+            yaxis: {
+                title: 'Duration'
+            },
+            height: 400,
+            width: 500
+        };
+
+        Plotly.newPlot('regression-example-graph', data, layout);
+    </script>
+    <script>
+        var start_dates = {{ start_dates | safe }};
+
+        var trace = {
+            x: start_dates,
+            mode: 'markers',
+            type: 'scatter'
+        };
+
+        var data = [trace];
+
+        var layout = {
+            xaxis: {
+                title: 'Start Date',
+                type: 'date'
+            },
+            yaxis: {
+                title: 'Count'
+            },
+            height: 400,
+            width: 500
+        };
+
+        Plotly.newPlot('time-series-graph', data, layout);
+    </script>
+    <script>
+    var operation_types = {{ operation_types | safe }};
+    var days = {{ days | safe }};
+    var countss = {{ countss | safe }};
+
+    var data = [];
+    for (var i = 0; i < operation_types.length; i++) {
+        var trace = {
+            x: days,
+            y: Object.values(countss[operation_types[i]]),
+            name: operation_types[i],
+            type: 'bar',
+            marker: {
+              color: getBarColor(i) // Use a function to get color based on index
+            }
+        };
+        data.push(trace);
+    }
+
+    function getBarColor(index) {
+        // Define your colors here or use a color palette library
+        var colors = ['rgba(93, 164, 214, 0.5)', 'rgba(255, 0, 0, 0.5)'];
+
+        // Use modulo to repeat colors if there are more days than colors
+        return colors[index % colors.length];
+    }
+
+    var layout = {
+        xaxis: {
+            title: 'Day'
+        },
+        yaxis: {
+            title: 'Count'
+        },
+        barmode: 'group', // Set barmode to 'group' for side-by-side bars
+        height: 400,
+        width: 500
+    };
+
+    Plotly.newPlot('classification-example-graph', data, layout);
+    </script>
+  </body>
+
+</html>
